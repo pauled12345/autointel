@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/app_user.dart';
 import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  User? _user;
+  final AuthService _authService;
+  AppUser? _user;
 
-  AuthProvider() {
+  AuthProvider(this._authService) {
     _authService.authStateChanges.listen((user) {
       _user = user;
       notifyListeners();
@@ -14,17 +15,15 @@ class AuthProvider extends ChangeNotifier {
   }
 
   bool get isSignedIn => _user != null;
-  User? get user => _user;
+  AppUser? get user => _user;
 
-  Future<void> signIn(String email, String password) async {
-    await _authService.signInWithEmail(email, password);
+  Future<void> signIn(String email, String password) {
+    return _authService.signInWithEmail(email, password);
   }
 
-  Future<void> register(String email, String password) async {
-    await _authService.registerWithEmail(email, password);
+  Future<void> register(String email, String password) {
+    return _authService.registerWithEmail(email, password);
   }
 
-  Future<void> signOut() async {
-    await _authService.signOut();
-  }
+  Future<void> signOut() => _authService.signOut();
 }

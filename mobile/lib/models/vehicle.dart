@@ -17,12 +17,22 @@ class Vehicle {
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      id: json['id'],
-      make: json['make'],
-      model: json['model'],
-      year: json['year'],
-      vin: json['vin'],
-      nickname: json['nickname'],
+      id: json['id'] as String,
+      make: json['make'] as String,
+      model: json['model'] as String,
+      year: json['year'] as int,
+      vin: json['vin'] as String?,
+      nickname: json['nickname'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'make': make,
+      'model': model,
+      'year': year,
+      if (vin != null) 'vin': vin,
+      if (nickname != null) 'nickname': nickname,
+    };
   }
 }

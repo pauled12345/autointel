@@ -54,6 +54,29 @@ Update the `baseUrl` in `lib/services/api_service.dart` to point at your
 backend (use `10.0.2.2:8000` for the Android emulator, your machine's LAN IP
 for a physical device paired to the ELM327 adapter).
 
+### Demo mode (no hardware, no Firebase)
+
+The app runs out of the box even before Firebase is wired up. If
+`Firebase.initializeApp()` fails (no project configured), `main.dart` falls
+back to an in-memory mock auth service and seeds a demo vehicle, so you can
+walk the full flow — **login → home → vehicle → diagnostics** — with no
+backend and no OBD scanner:
+
+```bash
+cd mobile
+flutter run            # sign in with "Use demo account", tap the demo vehicle
+```
+
+For a direct, auth-free view of just the OBD + AI pipeline (the mock ELM327
+init sequence, fault codes, AI explanations, live sensor data), use the
+standalone demo entry point:
+
+```bash
+flutter run -t lib/main_demo.dart
+```
+
+See `mobile/README.md` for details.
+
 ## Project Structure
 
 ```

@@ -3,6 +3,7 @@ backend/venv/
 __pycache__/
 *.pyc
 .env
+*.db
 
 # Flutter
 mobile/.dart_tool/
@@ -12,4 +13,6 @@ mobile/.flutter-plugins-dependencies
 
 # IDE / OS
 .vscode/
+.idea/
+.commandcode/
 .DS_Store

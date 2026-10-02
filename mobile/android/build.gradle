@@ -1,0 +1,36 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// Build output lives outside OneDrive — its "Files On-Demand" dehydration
+// corrupts Flutter's intermediate assets and breaks incremental Gradle builds.
+rootProject.buildDir = "C:/autointel-build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Older Flutter plugins (e.g. flutter_bluetooth_serial) predate the AGP
+// `namespace` requirement, so backfill it from the plugin's manifest package.
+subprojects { sub ->
+    sub.plugins.withId("com.android.library") {
+        sub.afterEvaluate {
+            if (sub.android.namespace == null) {
+                def manifestFile = sub.android.sourceSets.main.manifest.srcFile
+                if (manifestFile != null && manifestFile.exists()) {
+                    def pkg = new XmlSlurper().parse(manifestFile).@package.toString()
+                    if (pkg) sub.android.namespace = pkg
+                }
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

@@ -1,22 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../models/app_user.dart';
 
-class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+/// Authentication backend. The UI depends on this interface rather than on a
+/// specific provider, so a real backend can be swapped in later without
+/// touching the screens.
+///
+/// The app currently runs against [MockAuthService]. When Firebase is wired up
+/// (via `flutterfire configure`), add back the `firebase_core`/`firebase_auth`
+/// dependencies and a `FirebaseAuthService` implementing this interface.
+abstract class AuthService {
+  Stream<AppUser?> get authStateChanges;
 
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  AppUser? get currentUser;
 
-  Future<UserCredential> signInWithEmail(String email, String password) {
-    return _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-  }
+  Future<void> signInWithEmail(String email, String password);
 
-  Future<UserCredential> registerWithEmail(String email, String password) {
-    return _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-  }
+  Future<void> registerWithEmail(String email, String password);
 
-  Future<void> signOut() => _firebaseAuth.signOut();
+  Future<void> signOut();
 
-  Future<String?> getIdToken() async {
-    final user = _firebaseAuth.currentUser;
-    return user?.getIdToken();
-  }
+  Future<String?> getIdToken();
 }

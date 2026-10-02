@@ -1,5 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Integer, ForeignKey, Uuid
 from sqlalchemy.orm import relationship
 
 from database.database import Base
@@ -8,7 +7,7 @@ from models.base_mixin import UUIDMixin, TimestampMixin
 class Vehicle(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "vehicles"
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=False)
     make = Column(String, nullable=False)
     model = Column(String, nullable=False)
     year = Column(Integer, nullable=False)
