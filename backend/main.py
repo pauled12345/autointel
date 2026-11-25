@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from database.database import Base, engine
 from routes import auth, vehicles, diagnostics, maintenance, fuel, chat
@@ -32,3 +33,11 @@ app.include_router(chat.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/health/db")
+def health_db():
+    """Touches the database so Neon doesn't auto-suspend (used by keep-alive)."""
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    return {"status": "ok", "db": "ok"}

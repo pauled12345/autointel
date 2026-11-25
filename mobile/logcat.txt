@@ -1,0 +1,82 @@
+﻿--------- beginning of crash
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: FATAL EXCEPTION: main
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: Process: apps.syst.com.devbib, PID: 7227
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.pairip.application.Application
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:9130)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(ActivityThread.java:0)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3016)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:132)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.os.Looper.dispatchMessage(Looper.java:358)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:288)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:392)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10346)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:638)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:972)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: Caused by: java.lang.IllegalStateException: SharedPreferences in credential encrypted storage are not available until after user (id 0) is unlocked
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ContextImpl.getSharedPreferences(ContextImpl.java:692)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ContextImpl.getSharedPreferences(ContextImpl.java:659)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.content.ContextWrapper.getSharedPreferences(ContextWrapper.java:243)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.google.firebase.remoteconfig.RemoteConfigComponent.g(SourceFile:1)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.google.firebase.remoteconfig.RemoteConfigComponent.get(SourceFile:23)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.google.firebase.remoteconfig.RemoteConfigComponent.d(SourceFile:1)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.google.firebase.remoteconfig.FirebaseRemoteConfig.getInstance(SourceFile:2)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at com.google.firebase.remoteconfig.FirebaseRemoteConfig.getInstance(SourceFile:1)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at apps.syst.com.devbib.MainApplication.onCreate(SourceFile:123)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1399)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:9125)
+10-03 12:10:41.497  7227  7227 E AndroidRuntime: 	... 10 more
+10-04 03:03:42.947 21074 21150 F libc    : Fatal signal 4 (SIGILL), code -6 (SI_TKILL) in tid 21150 (mars::21150), pid 21074 (tencent.mm:push)
+10-04 03:03:43.645  5264  5264 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-04 03:03:43.645  5264  5264 F DEBUG   : Build fingerprint: 'samsung/e3qxxx/e3q:16/BP4A.251205.006/S928BXXS6DZI1:user/release-keys'
+10-04 03:03:43.645  5264  5264 F DEBUG   : Kernel Release: '6.1.145-android14-11-33419968-abS928BXXS6DZI1'
+10-04 03:03:43.645  5264  5264 F DEBUG   : Revision: '13'
+10-04 03:03:43.645  5264  5264 F DEBUG   : ABI: 'arm64'
+10-04 03:03:43.645  5264  5264 F DEBUG   : Processor: '4'
+10-04 03:03:43.645  5264  5264 F DEBUG   : Timestamp: 2026-10-04 03:03:43.077916664+0300
+10-04 03:03:43.645  5264  5264 F DEBUG   : Process uptime: 1910s
+10-04 03:03:43.645  5264  5264 F DEBUG   : Executable: /system/bin/app_process64
+10-04 03:03:43.645  5264  5264 F DEBUG   : Cmdline: com.tencent.mm:push
+10-04 03:03:43.645  5264  5264 F DEBUG   : pid: 21074, tid: 21150, name: mars::21150  >>> com.tencent.mm:push <<<
+10-04 03:03:43.645  5264  5264 F DEBUG   : uid: 10387
+10-04 03:03:43.645  5264  5264 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+10-04 03:03:43.645  5264  5264 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+10-04 03:03:43.645  5264  5264 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+10-04 03:03:43.645  5264  5264 F DEBUG   : signal 4 (SIGILL), code -6 (SI_TKILL), fault addr --------
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x0  0000000000000000  x1  00000079f7df01b8  x2  0000000000000000  x3  0000000000000008
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x4  00000079f7df0150  x5  0000007e1bad74b4  x6  00000079f7df0140  x7  0000000700000001
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x8  0000000000000087  x9  0000000000005252  x10 0000000000004100  x11 0000000000000000
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x12 0000000000000010  x13 0000000000000000  x14 0000000000000000  x15 000000000479f5c5
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x16 0000007e1bb40420  x17 0000007e1bac9e94  x18 000000799d980000  x19 000000799e00a448
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x20 00000079f7cf8000  x21 000000000000137a  x22 00000079f7df0500  x23 00000079f7df0140
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x24 00000079f7df0140  x25 00000079f7df04a8  x26 00000000000fc000  x27 00000079f7cf4000
+10-04 03:03:43.645  5264  5264 F DEBUG   :     x28 0000000000104000  x29 000000799e008700
+10-04 03:03:43.645  5264  5264 F DEBUG   :     lr  0000007e1bad723c  sp  000000799e008660  pc  0000007e1bb2790c  pst 0000000000001000
+10-04 03:03:43.645  5264  5264 F DEBUG   :     esr 0000000092000006
+10-04 03:03:43.645  5264  5264 F DEBUG   : 13 total frames
+10-04 03:03:43.645  5264  5264 F DEBUG   : backtrace:
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #00 pc 00000000000d690c  /apex/com.android.runtime/lib64/bionic/libc.so (__rt_sigprocmask+12) (BuildId: 64d871450fcb5d49f25d890ceb588b3c)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #01 pc 0000000000086238  /apex/com.android.runtime/lib64/bionic/libc.so (pthread_create+672) (BuildId: 64d871450fcb5d49f25d890ceb588b3c)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #02 pc 000000000003eda4  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #03 pc 000000000006261c  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (mars::comm::DNS::GetHostByName(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>&, long, mars::comm::DNSBreaker*, bool, std::__ndk1::map<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::less<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>, std::__ndk1::allocator<std::__ndk1::pair<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>> const&, bool)+2916) (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #04 pc 00000000002c4330  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libwechatnetwork.so (BuildId: 29bcbb7cecfb9edfe59067d46085745e2d54ee3a)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #05 pc 00000000002b9a34  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libwechatnetwork.so (BuildId: 29bcbb7cecfb9edfe59067d46085745e2d54ee3a)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #06 pc 00000000002efe58  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libwechatnetwork.so (BuildId: 29bcbb7cecfb9edfe59067d46085745e2d54ee3a)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #07 pc 000000000007656c  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #08 pc 0000000000074a30  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #09 pc 00000000000768ec  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #10 pc 000000000003f8e8  /data/app/~~YwmeTUHFF1Zot3mHUng1Xg==/com.tencent.mm-AzcVjP_nb5SGoW-4wx8FEw==/lib/arm64/libmarscomm.so (BuildId: 28e1bb9a71a2367aa2daad67fb2de1e85c9edd07)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #11 pc 000000000008656c  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+184) (BuildId: 64d871450fcb5d49f25d890ceb588b3c)
+10-04 03:03:43.645  5264  5264 F DEBUG   :       #12 pc 0000000000078e8c  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: 64d871450fcb5d49f25d890ceb588b3c)
+--------- beginning of system
+10-04 18:58:11.526  2953  2999 E ActivityManager: Activity Manager Crash. UID:10463 PID:26439 TRANS:1598246212
+10-04 18:58:11.526  2953  2999 E ActivityManager: java.lang.ArrayIndexOutOfBoundsException: length=0; index=0
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at com.android.server.am.ActivityManagerService.onShellCommand(qb/115108153 e325b636d78dc09662f93ac5119353414c5355a58c6dd66503b7f7e7a94b2224:42)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at android.os.Binder.shellCommand(Binder.java:1219)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at android.os.Binder.onTransact(Binder.java:987)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:6050)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at com.android.server.am.ActivityManagerService.onTransact(qb/115108153 e325b636d78dc09662f93ac5119353414c5355a58c6dd66503b7f7e7a94b2224:426)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at android.os.Binder.execTransactInternal(Binder.java:1514)
+10-04 18:58:11.526  2953  2999 E ActivityManager: 	at android.os.Binder.execTransact(Binder.java:1454)
+--------- beginning of main
+10-04 19:19:54.797 11221 11281 I flutter : The Dart VM service is listening on http://127.0.0.1:38143/PX5Z7qJ7gaI=/

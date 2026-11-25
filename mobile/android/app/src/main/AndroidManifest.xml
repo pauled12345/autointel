@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network access for the AutoIntel backend (required in release builds;
+         Flutter only adds this to the debug/profile manifests otherwise). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Bluetooth Classic (SPP) permissions for the ELM327 adapter. -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
