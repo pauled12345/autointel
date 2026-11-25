@@ -21,3 +21,4 @@ mobile/.flutter-plugins-dependencies
 *.jks
 *.keystore
 key.properties
+mobile/logcat.txt
