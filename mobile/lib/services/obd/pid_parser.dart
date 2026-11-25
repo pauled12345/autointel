@@ -13,7 +13,13 @@ const List<PidSpec> kLivePids = [
   PidSpec('010D', 'Speed', 'km/h'),
   PidSpec('0105', 'Coolant Temp', '°C'),
   PidSpec('0104', 'Engine Load', '%'),
+  PidSpec('012F', 'Fuel Level', '%'),
+  PidSpec('015E', 'Fuel Rate', 'L/h'),
 ];
+
+/// A derived (non-PID) reading: instant fuel economy in km/l, computed by
+/// [DiagnosticsService] as Speed ÷ Fuel Rate.
+const PidSpec kFuelEconomySpec = PidSpec('DERIVED_KM_L', 'Fuel Economy', 'km/l');
 
 /// A decoded live reading.
 class PidReading {
@@ -30,6 +36,8 @@ class PidReading {
 /// - `010D` Speed      = A
 /// - `0105` Coolant    = A - 40
 /// - `0104` EngineLoad = A * 100 / 255
+/// - `012F` FuelLevel  = A * 100 / 255
+/// - `015E` FuelRate   = ((A * 256) + B) / 20
 ///
 /// Returns null if the reply is missing, an error, or too short.
 PidReading? decodePid(PidSpec pid, String response) {
@@ -48,6 +56,12 @@ PidReading? decodePid(PidSpec pid, String response) {
       return PidReading(pid, (a - 40).toDouble());
     case '0104':
       return PidReading(pid, a * 100 / 255);
+    case '012F':
+      return PidReading(pid, a * 100 / 255);
+    case '015E':
+      if (bytes.length < 2) return null;
+      final c = bytes[1];
+      return PidReading(pid, ((a * 256) + c) / 20);
     default:
       return null;
   }

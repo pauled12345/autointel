@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'chat_screen.dart';
 import 'dashboard_screen.dart';
 import 'fuel_screen.dart';
 import 'garage_screen.dart';
 import 'maintenance_screen.dart';
 import 'profile_screen.dart';
 
-/// The signed-in app shell: a bottom navigation bar over the five main areas.
+/// The signed-in app shell: a bottom navigation bar over the five main areas,
+/// with a floating AI-assistant button.
 class ShellScreen extends StatefulWidget {
   const ShellScreen({super.key});
 
@@ -27,14 +29,23 @@ class _ShellScreenState extends State<ShellScreen> {
         children: [
           DashboardScreen(onSwitchTab: _switchTab),
           const GarageScreen(),
-          const MaintenanceScreen(),
           const FuelScreen(),
+          const MaintenanceScreen(),
           const ProfileScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: _switchTab,
+        onDestinationSelected: (index) {
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChatScreen()),
+            );
+            return;
+          }
+          _switchTab(index);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -47,14 +58,13 @@ class _ShellScreenState extends State<ShellScreen> {
             label: 'Garage',
           ),
           NavigationDestination(
-            icon: Icon(Icons.build_outlined),
-            selectedIcon: Icon(Icons.build),
-            label: 'Maintenance',
+            icon: Icon(Icons.auto_awesome),
+            label: 'Ask',
           ),
           NavigationDestination(
-            icon: Icon(Icons.local_gas_station_outlined),
-            selectedIcon: Icon(Icons.local_gas_station),
-            label: 'Fuel',
+            icon: Icon(Icons.build_outlined),
+            selectedIcon: Icon(Icons.build),
+            label: 'Service',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outlined),

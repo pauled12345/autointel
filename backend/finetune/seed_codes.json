@@ -1,0 +1,86 @@
+[
+  {
+    "code": "P0300",
+    "plain_explanation": "The engine is misfiring across multiple cylinders. One or more cylinders aren't firing reliably, causing rough running, vibration, reduced power, and poor fuel economy.",
+    "likely_causes": ["Worn spark plugs", "Vacuum leak", "Faulty ignition coils", "Clogged fuel injectors", "Low fuel pressure"],
+    "severity": "high",
+    "recommended_action": "Schedule service promptly and avoid hard acceleration or heavy loads until diagnosed."
+  },
+  {
+    "code": "P0301",
+    "plain_explanation": "Cylinder 1 is misfiring, meaning it isn't firing on its proper cycle. This causes rough idle, vibration, and a loss of power, and can damage the catalytic converter if left unchecked.",
+    "likely_causes": ["Worn spark plug", "Faulty ignition coil", "Fuel injector problem", "Low compression"],
+    "severity": "high",
+    "recommended_action": "Schedule service soon. Avoid hard driving; continued misfiring can damage the catalytic converter."
+  },
+  {
+    "code": "P0302",
+    "plain_explanation": "Cylinder 2 is misfiring, meaning it isn't firing on its proper cycle. Symptoms include rough idle, vibration, and reduced power.",
+    "likely_causes": ["Worn spark plug", "Faulty ignition coil", "Fuel injector problem", "Low compression"],
+    "severity": "high",
+    "recommended_action": "Schedule service soon. Avoid hard driving until the cause is found."
+  },
+  {
+    "code": "P0133",
+    "plain_explanation": "The oxygen sensor ahead of the catalytic converter is responding too slowly to changes in the exhaust. This can hurt fuel economy and emissions, and may make the engine run rich or lean.",
+    "likely_causes": ["Aged or contaminated oxygen sensor", "Exhaust leak", "Damaged wiring or connector"],
+    "severity": "medium",
+    "recommended_action": "Safe to drive. Have the sensor inspected and replaced if needed."
+  },
+  {
+    "code": "P0420",
+    "plain_explanation": "The catalytic converter isn't cleaning exhaust gases as efficiently as expected. This often means the converter is wearing out, but can also be triggered by a faulty oxygen sensor.",
+    "likely_causes": ["Failing catalytic converter", "Upstream oxygen sensor issue", "Exhaust leak"],
+    "severity": "medium",
+    "recommended_action": "Safe to drive in the short term. Diagnose to rule out a sensor fault before replacing the converter."
+  },
+  {
+    "code": "P0171",
+    "plain_explanation": "The engine is running lean on bank 1, meaning there is too much air or too little fuel. This can cause hesitation, rough idle, and higher combustion temperatures.",
+    "likely_causes": ["Vacuum leak", "Dirty mass airflow sensor", "Weak fuel pump", "Clogged fuel filter"],
+    "severity": "medium",
+    "recommended_action": "Safe to drive. Have it diagnosed to find the source of the lean condition."
+  },
+  {
+    "code": "P0172",
+    "plain_explanation": "The engine is running rich on bank 1, meaning there is too much fuel or too little air. This wastes fuel and can foul spark plugs and damage the catalytic converter over time.",
+    "likely_causes": ["Faulty oxygen sensor", "Leaking fuel injector", "Restricted air filter", "Faulty coolant temperature sensor"],
+    "severity": "medium",
+    "recommended_action": "Safe to drive short distances. Diagnose and correct to avoid fouled plugs and converter damage."
+  },
+  {
+    "code": "P0113",
+    "plain_explanation": "The intake air temperature sensor is reporting an abnormally high reading, usually from an open circuit or a failed sensor. This can cause poor running, especially when the engine is cold.",
+    "likely_causes": ["Failed intake air temperature sensor", "Damaged wiring or connector", "Faulty engine control module (rare)"],
+    "severity": "low",
+    "recommended_action": "Safe to drive. Repair or replace the sensor circuit at your convenience."
+  },
+  {
+    "code": "P0128",
+    "plain_explanation": "The engine isn't reaching normal operating temperature quickly enough, usually because the thermostat is stuck open. This reduces fuel economy and heater performance.",
+    "likely_causes": ["Thermostat stuck open", "Low coolant level", "Faulty coolant temperature sensor"],
+    "severity": "low",
+    "recommended_action": "Safe to drive. Replace the thermostat; long-term cold running reduces efficiency."
+  },
+  {
+    "code": "P0440",
+    "plain_explanation": "There is a problem with the evaporative emissions system that captures fuel vapors. This often doesn't affect driving but will cause an emissions inspection failure.",
+    "likely_causes": ["Loose or faulty gas cap", "Small evap system leak", "Faulty purge valve"],
+    "severity": "low",
+    "recommended_action": "Safe to drive. Check the gas cap first; if it persists, have the evap system smoke-tested."
+  },
+  {
+    "code": "P0455",
+    "plain_explanation": "A large leak has been detected in the evaporative emissions system. The most common cause is a loose or missing fuel cap.",
+    "likely_causes": ["Loose or missing gas cap", "Damaged filler neck", "Disconnected evap hose"],
+    "severity": "medium",
+    "recommended_action": "Safe to drive. Tighten the gas cap and clear the code; if it returns, have the system inspected."
+  },
+  {
+    "code": "P0505",
+    "plain_explanation": "The idle air control system can't maintain the correct idle speed. You may notice stalling, surging, or an unstable idle.",
+    "likely_causes": ["Faulty idle air control valve", "Vacuum leak", "Carbon buildup in throttle body"],
+    "severity": "medium",
+    "recommended_action": "Schedule service. An unstable idle can cause stalling in traffic."
+  }
+]

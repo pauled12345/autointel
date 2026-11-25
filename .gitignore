@@ -16,3 +16,8 @@ mobile/.flutter-plugins-dependencies
 .idea/
 .commandcode/
 .DS_Store
+
+# Signing (never commit keys or keystores)
+*.jks
+*.keystore
+key.properties

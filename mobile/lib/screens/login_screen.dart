@@ -16,8 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isRegister = false;
-  bool _busy = false;
-  String? _error;
 
   @override
   void dispose() {
@@ -26,33 +24,21 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      final auth = context.read<AuthProvider>();
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      if (_isRegister) {
-        await auth.register(email, password);
-      } else {
-        await auth.signIn(email, password);
-      }
-    } catch (e) {
-      setState(() => _error = e.toString());
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+  void _toggleMode() {
+    context.read<AuthProvider>().clearError();
+    setState(() => _isRegister = !_isRegister);
   }
 
-  void _useDemoAccount() {
-    _isRegister = false;
-    _emailController.text = 'demo@autointel.app';
-    _passwordController.text = 'demo123';
-    _submit();
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final auth = context.read<AuthProvider>();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (_isRegister) {
+      await auth.register(email, password);
+    } else {
+      await auth.signIn(email, password);
+    }
   }
 
   @override
@@ -75,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       autocorrect: false,
                       decoration: const InputDecoration(
                         labelText: 'Email',
@@ -83,11 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (v) =>
                           (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
+                      textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
                         labelText: 'Password',
                         prefixIcon: Icon(Icons.lock_outline),
@@ -95,37 +85,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (v) =>
                           (v == null || v.length < 6) ? 'At least 6 characters' : null,
+                      onFieldSubmitted: (_) => _submit(),
                     ),
                     const SizedBox(height: 24),
-                    if (_error != null) ...[
-                      Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-                      const SizedBox(height: 12),
-                    ],
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(_isRegister ? 'Create Account' : 'Sign In'),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: _busy ? null : _useDemoAccount,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: const Text('Use demo account'),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: _busy
-                          ? null
-                          : () => setState(() {
-                                _isRegister = !_isRegister;
-                                _error = null;
-                              }),
-                      child: Text(
-                        _isRegister
-                            ? 'Already have an account? Sign in'
-                            : "Don't have an account? Create one",
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, _) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (auth.error != null) ...[
+                            _ErrorBanner(message: auth.error!),
+                            const SizedBox(height: 12),
+                          ],
+                          FilledButton(
+                            onPressed: auth.busy ? null : _submit,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: auth.busy
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : Text(_isRegister ? 'Create Account' : 'Sign In'),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextButton(
+                            onPressed: auth.busy ? null : _toggleMode,
+                            child: Text(
+                              _isRegister
+                                  ? 'Already have an account? Sign in'
+                                  : "Don't have an account? Create one",
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -140,29 +133,69 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildHeader(ThemeData theme) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: theme.colorScheme.primary,
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Icon(
             Icons.directions_car,
-            size: 34,
+            size: 24,
             color: theme.colorScheme.onPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Text(
           'AutoIntel',
-          style: theme.textTheme.headlineMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.6,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
-          'AI Vehicle Diagnostics',
+          _isRegister
+              ? 'Create an account to start diagnosing.'
+              : 'Sign in to check your vehicle.',
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
+    );
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  final String message;
+
+  const _ErrorBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.errorContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.error_outline, color: colors.onErrorContainer, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: colors.onErrorContainer, height: 1.3),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 allprojects {
     repositories {
+        maven { url "file:///C:/autointel-local-maven" }
         google()
         mavenCentral()
     }
@@ -17,15 +18,15 @@ subprojects {
 
 // Older Flutter plugins (e.g. flutter_bluetooth_serial) predate the AGP
 // `namespace` requirement, so backfill it from the plugin's manifest package.
+// This must happen in the plugin-apply callback (not afterEvaluate) — AGP 8
+// rejects setting the namespace once it has already locked it.
 subprojects { sub ->
     sub.plugins.withId("com.android.library") {
-        sub.afterEvaluate {
-            if (sub.android.namespace == null) {
-                def manifestFile = sub.android.sourceSets.main.manifest.srcFile
-                if (manifestFile != null && manifestFile.exists()) {
-                    def pkg = new XmlSlurper().parse(manifestFile).@package.toString()
-                    if (pkg) sub.android.namespace = pkg
-                }
+        if (sub.android.namespace == null) {
+            def manifestFile = sub.file("src/main/AndroidManifest.xml")
+            if (manifestFile.exists()) {
+                def pkg = new XmlSlurper().parse(manifestFile).@package.toString()
+                if (pkg) sub.android.namespace = pkg
             }
         }
     }

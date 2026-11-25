@@ -1,12 +1,19 @@
 import '../models/app_user.dart';
 
+/// A user-facing authentication error. The UI shows [message] directly, so it
+/// must never contain raw exception text such as "DioException [bad response]".
+class AuthException implements Exception {
+  final String message;
+
+  const AuthException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// Authentication backend. The UI depends on this interface rather than on a
-/// specific provider, so a real backend can be swapped in later without
-/// touching the screens.
-///
-/// The app currently runs against [MockAuthService]. When Firebase is wired up
-/// (via `flutterfire configure`), add back the `firebase_core`/`firebase_auth`
-/// dependencies and a `FirebaseAuthService` implementing this interface.
+/// specific provider. The production implementation is [BackendAuthService],
+/// which authenticates against the AutoIntel API.
 abstract class AuthService {
   Stream<AppUser?> get authStateChanges;
 

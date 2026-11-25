@@ -34,10 +34,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: const Icon(Icons.person, color: Colors.white),
               ),
               title: Text(
-                user?.displayName ?? 'Demo Driver',
+                user?.displayName ?? user?.email ?? 'Driver',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text(user?.email ?? 'demo@autointel.app'),
+              subtitle: Text(user?.email ?? ''),
             ),
           ),
           const SizedBox(height: 16),
@@ -71,6 +71,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          Text('Safety & Legal', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.health_and_safety_outlined),
+                  title: const Text('Safety disclaimer'),
+                  subtitle: const Text('Not a substitute for a mechanic'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showDisclaimer(context),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.gavel_outlined),
+                  title: const Text('Terms & Privacy'),
+                  subtitle: const Text('Your data and the rules of use'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showTerms(context),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           Card(
             child: Column(
               children: [
@@ -87,6 +111,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDisclaimer(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Safety disclaimer'),
+        content: const SingleChildScrollView(
+          child: Text(
+            'AutoIntel provides informational guidance only and is not a '
+            'substitute for a qualified mechanic. AI explanations can be '
+            'inaccurate or incomplete. Never rely solely on this app to decide '
+            'whether your vehicle is safe to drive — if you are unsure, stop '
+            'driving and have the vehicle inspected by a professional.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTerms(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Terms & Privacy'),
+        content: const SingleChildScrollView(
+          child: Text(
+            'By using AutoIntel you agree to the Terms of Service. We collect '
+            'your account email, vehicles, and diagnostic data to provide the '
+            'service, and we do not sell your personal information. Fault-code '
+            'data may be sent to an AI provider to generate explanations. See '
+            'the full Terms of Service and Privacy Policy published with the app.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),

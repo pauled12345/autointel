@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'providers/vehicle_provider.dart';
-import 'services/mock_auth_service.dart';
+import 'services/backend_auth_service.dart';
 
 void main() {
-  // Load vehicles from the backend (falls back to the demo vehicle offline).
-  final vehicleProvider = VehicleProvider()..load();
+  WidgetsFlutterBinding.ensureInitialized();
+  final authService = BackendAuthService();
+  final vehicleProvider = VehicleProvider();
+
+  // Load the user's vehicles when they sign in, clear them when they sign out.
+  authService.authStateChanges.listen((user) {
+    if (user != null) {
+      vehicleProvider.load();
+    } else {
+      vehicleProvider.setVehicles([]);
+    }
+  });
 
   runApp(
     AutoIntelApp(
-      authService: MockAuthService(),
+      authService: authService,
       vehicleProvider: vehicleProvider,
     ),
   );

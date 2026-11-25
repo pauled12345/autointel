@@ -2,8 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database.database import Base, engine
-from services.firebase_service import init_firebase
-from routes import vehicles, diagnostics, maintenance, fuel
+from routes import auth, vehicles, diagnostics, maintenance, fuel, chat
 import models  # noqa: F401 ensures all models are registered with Base
 
 app = FastAPI(title="AutoIntel API", version="0.1.0")
@@ -18,15 +17,16 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    init_firebase()
     # For local dev only — use Alembic migrations in place of this for production.
     Base.metadata.create_all(bind=engine)
 
 
+app.include_router(auth.router)
 app.include_router(vehicles.router)
 app.include_router(diagnostics.router)
 app.include_router(maintenance.router)
 app.include_router(fuel.router)
+app.include_router(chat.router)
 
 
 @app.get("/health")

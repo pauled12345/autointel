@@ -1,16 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 
-class UserBase(BaseModel):
-    email: EmailStr
-    display_name: str | None = None
 
-class UserCreate(UserBase):
-    firebase_uid: str
-
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: UUID
+    email: str
+    display_name: str | None = None
     created_at: datetime
 
     class Config:

@@ -1,19 +1,17 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/demo_data.dart';
 import '../models/vehicle.dart';
 import '../services/data_repository.dart';
 
 class VehicleProvider extends ChangeNotifier {
   final DataRepository _repo = DataRepository();
-  List<Vehicle> _vehicles = [demoVehicle];
+  List<Vehicle> _vehicles = [];
 
   List<Vehicle> get vehicles => _vehicles;
 
-  /// Fetches vehicles from the backend, falling back to the demo vehicle.
+  /// Fetches the signed-in user's vehicles from the backend.
   Future<void> load() async {
-    final vehicles = await _repo.fetchVehicles();
-    _vehicles = vehicles;
+    _vehicles = await _repo.fetchVehicles();
     notifyListeners();
   }
 

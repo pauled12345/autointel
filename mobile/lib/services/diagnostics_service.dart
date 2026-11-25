@@ -21,7 +21,8 @@ class DiagnosticsService {
     return upper.contains('44') || upper.contains('OK');
   }
 
-  /// Mode 01 — read all [kLivePids] once.
+  /// Mode 01 — read all [kLivePids] once, then append the derived instant
+  /// fuel economy (km/l = Speed ÷ Fuel Rate).
   Future<List<PidReading>> readLiveData() async {
     final readings = <PidReading>[];
     for (final pid in kLivePids) {
@@ -29,6 +30,21 @@ class DiagnosticsService {
       final reading = decodePid(pid, response);
       if (reading != null) readings.add(reading);
     }
+    final economy = _deriveFuelEconomy(readings);
+    if (economy != null) readings.add(economy);
     return readings;
+  }
+
+  /// Computes instant fuel economy (km/l) from the Speed and Fuel Rate PIDs.
+  /// Returns null when either is missing or the fuel rate is not positive.
+  PidReading? _deriveFuelEconomy(List<PidReading> readings) {
+    double? speed;
+    double? fuelRate;
+    for (final r in readings) {
+      if (r.spec.pid == '010D') speed = r.value;
+      if (r.spec.pid == '015E') fuelRate = r.value;
+    }
+    if (speed == null || fuelRate == null || fuelRate <= 0) return null;
+    return PidReading(kFuelEconomySpec, speed / fuelRate);
   }
 }

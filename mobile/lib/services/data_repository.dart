@@ -1,47 +1,57 @@
-import '../data/demo_data.dart';
 import '../models/fault_code.dart';
 import '../models/fuel_log.dart';
 import '../models/maintenance_log.dart';
 import '../models/vehicle.dart';
 import 'api_service.dart';
 
-/// Loads data from the backend API, falling back to bundled demo data when the
-/// backend is unreachable or empty — so the app always renders something.
+/// Loads data from the backend API. Fetch methods return empty lists on failure
+/// so the UI degrades gracefully instead of crashing.
 class DataRepository {
-  final ApiService _api = ApiService();
+  final ApiService _api;
+
+  DataRepository([ApiService? api]) : _api = api ?? ApiService();
 
   Future<List<Vehicle>> fetchVehicles() async {
     try {
-      final vehicles = await _api.getVehicles();
-      if (vehicles.isNotEmpty) return vehicles;
+      return await _api.getVehicles();
     } catch (_) {
-      // backend unreachable — fall through to demo data
+      return const [];
     }
-    return [demoVehicle];
   }
 
   Future<List<MaintenanceLog>> fetchMaintenance(String vehicleId) async {
     try {
-      final logs = await _api.getMaintenance(vehicleId);
-      if (logs.isNotEmpty) return logs;
+      return await _api.getMaintenance(vehicleId);
     } catch (_) {
-      // fall through to demo data
+      return const [];
     }
-    return demoMaintenanceLogs;
   }
 
   Future<List<FuelLog>> fetchFuel(String vehicleId) async {
     try {
-      final logs = await _api.getFuel(vehicleId);
-      if (logs.isNotEmpty) return logs;
+      return await _api.getFuel(vehicleId);
     } catch (_) {
-      // fall through to demo data
+      return const [];
     }
-    return demoFuelLogs;
   }
 
-  /// The diagnostics methods intentionally throw when the backend is
-  /// unreachable — callers decide whether to fall back to local behaviour.
+  Future<MaintenanceLog> createMaintenance(
+      String vehicleId, MaintenanceLog log) async {
+    try {
+      return await _api.createMaintenance(vehicleId, log);
+    } catch (_) {
+      return log; // backend unreachable — keep the local entry
+    }
+  }
+
+  Future<FuelLog> createFuel(String vehicleId, FuelLog log) async {
+    try {
+      return await _api.createFuel(vehicleId, log);
+    } catch (_) {
+      return log; // backend unreachable — keep the local entry
+    }
+  }
+
   Future<String> startDiagnosticsSession(String vehicleId) =>
       _api.startDiagnosticsSession(vehicleId);
 

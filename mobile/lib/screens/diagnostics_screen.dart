@@ -8,16 +8,18 @@ import '../services/data_repository.dart';
 import '../services/diagnostics_service.dart';
 import '../services/obd_service.dart';
 import '../services/obd/pid_parser.dart';
+import '../utils/bluetooth_permissions.dart';
+import '../utils/severity.dart';
+import 'chat_screen.dart';
 
-/// Main diagnostics workflow: connect to the adapter, read/clear DTCs, watch
-/// live PIDs, and get an AI explanation for each code.
-///
-/// Runs fully against the in-app mock adapter, so it is demoable with no car.
+/// Main diagnostics workflow: connect to a paired ELM327 adapter over
+/// Bluetooth Classic, read/clear DTCs, watch live PIDs, and get an AI
+/// explanation for each code.
 class DiagnosticsScreen extends StatefulWidget {
   final String vehicleId;
 
   /// When true, runs the full flow (connect → read codes → live data) on first
-  /// build, for a one-tap demo experience.
+  /// build.
   final bool autoRun;
 
   /// Injectable data layer (for tests). Defaults to a real [DataRepository].
@@ -46,7 +48,6 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
   List<PidReading> _live = [];
   Timer? _pollTimer;
 
-  bool _useMock = true;
   bool _busy = false;
   bool _initialized = false;
   bool _polling = false;
@@ -79,8 +80,20 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
       _status = 'Connecting…';
     });
     try {
-      await _obd.connect(ObdService.mockDevice, useMock: _useMock, onLog: _append);
-      _append('Connected (${_useMock ? 'mock' : 'real'} adapter)');
+      final granted = await ensureBluetoothPermissions();
+      if (!granted) {
+        _append('Bluetooth permission denied');
+        setState(() => _status = 'Permission denied');
+        return;
+      }
+      final devices = await _obd.scanForAdapters();
+      if (devices.isEmpty) {
+        _append('No paired ELM327 adapter found. Pair it in Android Bluetooth settings.');
+        setState(() => _status = 'No adapter found');
+        return;
+      }
+      await _obd.connect(devices.first, onLog: _append);
+      _append('Connected');
       setState(() => _status = 'Running init sequence (ATZ, ATE0, ATSP0)…');
       final result = await _obd.initialize();
       _append('Init complete → $result');
@@ -160,7 +173,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
         enriched.add(Dtc(
           code: code,
           severity: fault.severity ?? 'medium',
-          explanation: fault.aiExplanation,
+          diagnosis: fault.diagnosis,
         ));
       }
       return enriched;
@@ -172,7 +185,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
         enriched.add(Dtc(
           code: code,
           severity: ai.severity,
-          explanation: ai.explanation,
+          diagnosis: ai,
         ));
       }
       return enriched;
@@ -277,33 +290,22 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          children: [
-            SwitchListTile(
-              value: _useMock,
-              onChanged: _busy || _initialized
-                  ? null
-                  : (v) => setState(() => _useMock = v),
-              title: const Text('Use mock adapter'),
-              subtitle: const Text('Simulate the ELM327 — no car needed'),
-            ),
-            ListTile(
-              leading: Icon(
-                _initialized ? Icons.check_circle : Icons.bluetooth,
-                color: _initialized ? Colors.green : theme.colorScheme.primary,
-              ),
-              title: Text(_status),
-              trailing: _initialized
-                  ? TextButton(
-                      onPressed: _busy ? null : _disconnect,
-                      child: const Text('Disconnect'),
-                    )
-                  : FilledButton(
-                      onPressed: _busy ? null : _connectAndInit,
-                      child: const Text('Connect & Init'),
-                    ),
-            ),
-          ],
+        child: ListTile(
+          leading: Icon(
+            _initialized ? Icons.check_circle : Icons.bluetooth,
+            color: _initialized ? Colors.green : theme.colorScheme.primary,
+          ),
+          title: Text(_status),
+          subtitle: const Text('Paired Bluetooth Classic (SPP) ELM327 adapter'),
+          trailing: _initialized
+              ? TextButton(
+                  onPressed: _busy ? null : _disconnect,
+                  child: const Text('Disconnect'),
+                )
+              : FilledButton(
+                  onPressed: _busy ? null : _connectAndInit,
+                  child: const Text('Connect & Init'),
+                ),
         ),
       ),
     );
@@ -404,6 +406,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
   }
 
   void _showExplanation(Dtc dtc) {
+    final diagnosis = dtc.diagnosis;
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -411,19 +414,70 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
           children: [
             const Icon(Icons.auto_awesome),
             const SizedBox(width: 8),
-            Text('AI · ${dtc.code}'),
+            Expanded(child: Text('AI · ${dtc.code}')),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Severity: ${dtc.severity.toUpperCase()}'),
-            const SizedBox(height: 12),
-            Text(dtc.explanation ?? 'No explanation available.'),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _severityBadge(dtc.severity),
+              const SizedBox(height: 16),
+              _sectionTitle(context, 'What it means'),
+              Text(
+                diagnosis?.plainExplanation.isNotEmpty == true
+                    ? diagnosis!.plainExplanation
+                    : (dtc.description.isNotEmpty ? dtc.description : 'No explanation available.'),
+              ),
+              if (diagnosis != null && diagnosis.symptoms.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                _sectionTitle(context, 'Symptoms'),
+                ...diagnosis.symptoms.map(_bullet),
+              ],
+              if (diagnosis != null && diagnosis.likelyCauses.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                _sectionTitle(context, 'Likely causes'),
+                ...diagnosis.likelyCauses.map(_bullet),
+              ],
+              if (diagnosis != null && diagnosis.recommendedAction.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                _sectionTitle(context, 'What to do'),
+                Text(diagnosis.recommendedAction),
+              ],
+              if (diagnosis != null) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Chip(label: Text('Difficulty: ${_capitalize(diagnosis.repairDifficulty)}')),
+                    if (diagnosis.estimatedCost.isNotEmpty)
+                      Chip(label: Text('Est. cost: ${diagnosis.estimatedCost}')),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 16),
+              _disclaimerNote(context),
+            ],
+          ),
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                this.context,
+                MaterialPageRoute(
+                  builder: (_) => ChatScreen(
+                    initialPrompt:
+                        'I just got fault code ${dtc.code}. Can you tell me more about it and what I should do?',
+                  ),
+                ),
+              );
+            },
+            child: const Text('Discuss with AI'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
@@ -432,6 +486,70 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
       ),
     );
   }
+
+  Widget _severityBadge(String severity) {
+    final color = _severityColor(severity);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        'Severity: ${severity.toUpperCase()}',
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text(
+        text,
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall
+            ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _bullet(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('•  '),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
+  }
+
+  Widget _disclaimerNote(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline,
+            size: 16, color: theme.colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'AI-generated guidance — not a substitute for a professional '
+            'mechanic. Verify before acting.',
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   Widget _buildLiveDataCard() {
     return Card(
@@ -551,23 +669,16 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
         return 120; // °C
       case '0104':
         return 100; // %
+      case '012F':
+        return 100; // %
+      case '015E':
+        return 40; // L/h
+      case 'DERIVED_KM_L':
+        return 30; // km/l
       default:
         return 0;
     }
   }
 
-  Color _severityColor(String severity) {
-    switch (severity.toLowerCase()) {
-      case 'critical':
-        return Colors.red.shade900;
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      default:
-        return Colors.blueGrey;
-    }
-  }
+  Color _severityColor(String severity) => severityColor(severity);
 }

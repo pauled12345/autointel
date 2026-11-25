@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../models/auth_result.dart';
 import '../models/fault_code.dart';
 import '../models/fuel_log.dart';
 import '../models/maintenance_log.dart';
@@ -9,21 +10,57 @@ import '../models/vehicle.dart';
 class ApiConfig {
   /// The AutoIntel FastAPI base URL.
   ///
-  /// - Physical device on the same Wi-Fi: use your PC's LAN IP.
-  /// - Android emulator: use `http://10.0.2.2:8000`.
-  static const String baseUrl = 'http://192.168.100.134:8000';
+  /// Set at build time with the `--dart-define` flag:
+  ///
+  ///   flutter build apk --dart-define=API_BASE_URL=https://<service>.up.railway.app
+  ///
+  /// When not set, falls back to the local-network address used in demos
+  /// (replace it with your Railway URL once deployed).
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://192.168.100.134:8000',
+  );
 }
 
 /// Thin wrapper around Dio for the AutoIntel FastAPI backend.
 class ApiService {
+  /// Shared JWT attached to every request once the user signs in. Kept static
+  /// so all ApiService instances (repository, auth, screens) stay in sync.
+  static String? token;
+
   final Dio _dio;
 
   ApiService({String baseUrl = ApiConfig.baseUrl})
       : _dio = Dio(BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 4),
-          receiveTimeout: const Duration(seconds: 4),
-        ));
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 15),
+        )) {
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        final t = token;
+        if (t != null) options.headers['Authorization'] = 'Bearer $t';
+        handler.next(options);
+      },
+    ));
+  }
+
+  Future<AuthResult> register(String email, String password, {String? displayName}) async {
+    final response = await _dio.post('/auth/register', data: {
+      'email': email,
+      'password': password,
+      if (displayName != null) 'display_name': displayName,
+    });
+    return AuthResult.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<AuthResult> login(String email, String password) async {
+    final response = await _dio.post('/auth/login', data: {
+      'email': email,
+      'password': password,
+    });
+    return AuthResult.fromJson(response.data as Map<String, dynamic>);
+  }
 
   Future<List<Vehicle>> getVehicles() async {
     final response = await _dio.get('/vehicles/');
@@ -35,6 +72,23 @@ class ApiService {
   Future<Vehicle> createVehicle(Vehicle vehicle) async {
     final response = await _dio.post('/vehicles/', data: vehicle.toJson());
     return Vehicle.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<MaintenanceLog> createMaintenance(
+      String vehicleId, MaintenanceLog log) async {
+    final response = await _dio.post('/maintenance/', data: {
+      'vehicle_id': vehicleId,
+      ...log.toJson(),
+    });
+    return MaintenanceLog.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<FuelLog> createFuel(String vehicleId, FuelLog log) async {
+    final response = await _dio.post('/fuel/', data: {
+      'vehicle_id': vehicleId,
+      ...log.toJson(),
+    });
+    return FuelLog.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<List<MaintenanceLog>> getMaintenance(String vehicleId) async {
@@ -87,5 +141,10 @@ class ApiService {
 
   Future<void> endDiagnosticsSession(String sessionId) async {
     await _dio.post('/diagnostics/sessions/$sessionId/end');
+  }
+
+  Future<String> chat(List<Map<String, String>> messages) async {
+    final response = await _dio.post('/chat/', data: {'messages': messages});
+    return (response.data as Map<String, dynamic>)['reply'] as String;
   }
 }

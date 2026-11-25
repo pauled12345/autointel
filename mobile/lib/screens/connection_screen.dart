@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../services/obd_service.dart';
 import '../services/obd/obd_transport.dart';
+import '../utils/bluetooth_permissions.dart';
 
-/// Phase 1 screen: discover an ELM327 adapter, connect, and run the AT init
-/// sequence, showing every command and response in a live log.
-///
-/// Flip the "Use mock adapter" switch to exercise the whole flow with no car.
+/// Discover a paired ELM327 adapter, connect, and run the AT init sequence,
+/// showing every command and response in a live log.
 class ConnectionScreen extends StatefulWidget {
   const ConnectionScreen({super.key});
 
@@ -21,7 +20,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
 
   List<ObdDevice> _devices = [];
   ObdDevice? _selected;
-  bool _useMock = true;
   bool _busy = false;
   bool _initialized = false;
   String _status = 'Not connected';
@@ -59,13 +57,19 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _status = 'Scanning…';
     });
     try {
-      final devices = await _obd.scanForAdapters(useMock: _useMock);
+      final granted = await ensureBluetoothPermissions();
+      if (!granted) {
+        _append('Bluetooth permission denied');
+        _setStatus('Permission denied');
+        return;
+      }
+      final devices = await _obd.scanForAdapters();
       setState(() {
         _devices = devices;
         _selected = devices.isEmpty ? null : devices.first;
       });
-      _append('Scan: ${devices.length} adapter(s) found');
-      _setStatus(devices.isEmpty ? 'No adapters found' : 'Ready to connect');
+      _append('Scan: ${devices.length} paired adapter(s) found');
+      _setStatus(devices.isEmpty ? 'No paired adapters found' : 'Ready to connect');
     } catch (error) {
       _append('Scan error: $error');
       _setStatus('Scan failed');
@@ -84,7 +88,13 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       _status = 'Connecting to ${device.name}…';
     });
     try {
-      await _obd.connect(device, useMock: _useMock, onLog: _append);
+      final granted = await ensureBluetoothPermissions();
+      if (!granted) {
+        _append('Bluetooth permission denied');
+        _setStatus('Permission denied');
+        return;
+      }
+      await _obd.connect(device, onLog: _append);
       _append('Connected to ${device.name}');
       _setStatus('Running init sequence (ATZ, ATE0, ATSP0)…');
       final result = await _obd.initialize();
@@ -118,23 +128,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SwitchListTile(
-              value: _useMock,
-              onChanged: _busy
-                  ? null
-                  : (value) => setState(() {
-                        _useMock = value;
-                        _devices = [];
-                        _selected = null;
-                        _log.clear();
-                        _initialized = false;
-                        _status = 'Not connected';
-                      }),
-              title: const Text('Use mock adapter'),
-              subtitle: const Text('Simulate an ELM327 — no car or hardware needed'),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -165,7 +158,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: _devices
-                    .map((d) => DropdownMenuItem(value: d, child: Text(d.toString())))
+                    .map((d) =>
+                        DropdownMenuItem(value: d, child: Text(d.toString())))
                     .toList(),
                 onChanged: _busy ? null : (d) => setState(() => _selected = d),
               ),
@@ -179,7 +173,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 ),
                 title: Text(_status),
                 trailing: _obd.isConnected
-                    ? TextButton(onPressed: _busy ? null : _disconnect, child: const Text('Disconnect'))
+                    ? TextButton(
+                        onPressed: _busy ? null : _disconnect,
+                        child: const Text('Disconnect'))
                     : null,
               ),
             ),

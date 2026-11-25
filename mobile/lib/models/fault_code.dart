@@ -1,3 +1,5 @@
+import 'ai_diagnosis.dart';
+
 class FaultCode {
   final String id;
   final String code;
@@ -14,6 +16,15 @@ class FaultCode {
     this.severity,
     required this.status,
   });
+
+  /// Parses the backend `ai_explanation` JSON into a structured diagnosis.
+  AiDiagnosis? get diagnosis {
+    if (aiExplanation == null) return null;
+    return AiDiagnosis.fromRaw(
+      aiExplanation,
+      fallbackSeverity: severity ?? 'medium',
+    );
+  }
 
   factory FaultCode.fromJson(Map<String, dynamic> json) {
     return FaultCode(

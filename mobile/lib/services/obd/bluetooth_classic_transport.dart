@@ -1,44 +1,69 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'obd_transport.dart';
 
-/// Placeholder for the real Bluetooth Classic (SPP) transport.
+/// Real Bluetooth Classic (SPP) transport for an ELM327 adapter.
 ///
-/// The production transport (previously over `flutter_bluetooth_serial`) was
-/// dropped because that plugin is unmaintained and no longer compiles with
-/// AGP 8. When a physical ELM327 adapter is available, add a maintained
-/// Bluetooth plugin (e.g. `flutter_blue_plus`) and implement [connect] and
-/// [bondedDevices] here. Everything above this leaf — [ObdTransport],
-/// the ELM327 client, the mock transport, the parsers and the UI — stays
-/// unchanged.
+/// Pairs with an adapter already bonded in the OS Bluetooth settings and
+/// speaks the same [ObdTransport] contract as the mock, so the ELM327 client,
+/// parsers and UI behave identically whether the bytes come from a real car or
+/// the simulator.
 class BluetoothClassicTransport implements ObdTransport {
   final StreamController<String> _controller =
       StreamController<String>.broadcast();
 
+  BluetoothConnection? _connection;
+  StreamSubscription<Uint8List>? _subscription;
+
   @override
-  bool get isConnected => false;
+  bool get isConnected => _connection?.isConnected ?? false;
 
   @override
   Stream<String> get input => _controller.stream;
 
-  /// Real Bluetooth discovery isn't wired up in this build.
-  static Future<List<ObdDevice>> bondedDevices() async => const [];
+  /// Lists already-paired (bonded) devices. The ELM327 must be paired in the
+  /// OS Bluetooth settings before it appears here.
+  static Future<List<ObdDevice>> bondedDevices() async {
+    final devices = await FlutterBluetoothSerial.instance.getBondedDevices();
+    return devices
+        .map((d) => ObdDevice(
+              name: d.name ?? 'Unknown device',
+              address: d.address,
+            ))
+        .toList();
+  }
 
   @override
   Future<void> connect(ObdDevice device) async {
-    throw ObdTransportException(
-      'Real Bluetooth Classic is not available in this build. '
-      'Use the mock adapter for the demo.',
-    );
+    final connection = await BluetoothConnection.toAddress(device.address);
+    _connection = connection;
+    _subscription = connection.input!.listen((data) {
+      if (!_controller.isClosed) {
+        _controller.add(ascii.decode(data));
+      }
+    });
   }
 
   @override
   Future<void> writeRaw(String data) async {
-    throw ObdTransportException('Not connected to any adapter');
+    final connection = _connection;
+    if (connection == null || !connection.isConnected) {
+      throw ObdTransportException('Not connected to any adapter');
+    }
+    connection.output.add(utf8.encode(data));
+    await connection.output.allSent;
   }
 
   @override
   Future<void> disconnect() async {
+    await _subscription?.cancel();
+    _subscription = null;
+    await _connection?.close();
+    _connection = null;
     if (!_controller.isClosed) {
       await _controller.close();
     }

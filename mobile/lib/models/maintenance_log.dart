@@ -4,6 +4,7 @@ class MaintenanceLog {
   final DateTime date;
   final int mileageKm;
   final double cost;
+  final String? notes;
 
   const MaintenanceLog({
     required this.id,
@@ -11,6 +12,7 @@ class MaintenanceLog {
     required this.date,
     required this.mileageKm,
     required this.cost,
+    this.notes,
   });
 
   String get title => maintenanceTitleFor(type);
@@ -27,6 +29,7 @@ class MaintenanceLog {
       date: performedAt,
       mileageKm: (json['odometer'] as num?)?.toInt() ?? 0,
       cost: (json['cost'] as num?)?.toDouble() ?? 0,
+      notes: json['notes'] as String?,
     );
   }
 
@@ -36,6 +39,7 @@ class MaintenanceLog {
       'cost': cost,
       'odometer': mileageKm,
       'performed_at': date.toIso8601String().substring(0, 10),
+      if (notes != null) 'notes': notes,
     };
   }
 }
@@ -50,6 +54,12 @@ String maintenanceTitleFor(String type) {
       return 'Brake Pad Replacement';
     case 'coolant_flush':
       return 'Coolant Flush';
+    case 'air_filter':
+      return 'Air Filter';
+    case 'spark_plugs':
+      return 'Spark Plugs';
+    case 'battery':
+      return 'Battery';
     default:
       return type
           .split('_')

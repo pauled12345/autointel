@@ -167,6 +167,18 @@ AutoIntel/
 - [ ] App icons, splash branding, store listing assets
 - [ ] Basic test coverage (auth flow, diagnostics endpoint, LLM service parsing)
 
+## Legal & Compliance
+
+- [`docs/disclaimer.md`](docs/disclaimer.md) — safety & liability disclaimer (read before publishing)
+- [`docs/terms-of-service.md`](docs/terms-of-service.md) — terms of service
+- [`docs/privacy-policy.md`](docs/privacy-policy.md) — privacy policy (required for the Play Store)
+- [`docs/faq.md`](docs/faq.md) — frequently asked questions
+- [`docs/ethics.md`](docs/ethics.md) — ethical considerations
+
+These are **templates** — complete the placeholders (dates, contact email, and the
+actual data your backend collects) and have them reviewed by a qualified attorney
+for your jurisdiction before publishing.
+
 ## Known Issues
 - `alembic/versions/` is currently empty — no migration has been generated yet.
   `main.py` falls back to `Base.metadata.create_all()` for local dev, which

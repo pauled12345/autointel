@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/notification_provider.dart';
 import 'providers/vehicle_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/shell_screen.dart';
 import 'services/auth_service.dart';
+import 'theme/app_theme.dart';
 
 class AutoIntelApp extends StatelessWidget {
   final AuthService authService;
@@ -23,15 +25,12 @@ class AutoIntelApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
         ChangeNotifierProvider<VehicleProvider>.value(value: vehicleProvider),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'AutoIntel',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorSchemeSeed: const Color(0xFF17A398),
-          brightness: Brightness.dark,
-          useMaterial3: true,
-        ),
+        theme: buildAppTheme(),
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) =>
               auth.isSignedIn ? const ShellScreen() : const LoginScreen(),
