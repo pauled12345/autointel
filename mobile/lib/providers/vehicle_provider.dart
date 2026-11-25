@@ -23,5 +23,17 @@ class VehicleProvider extends ChangeNotifier {
   void addVehicle(Vehicle vehicle) {
     _vehicles.add(vehicle);
     notifyListeners();
+    _syncVehicle(vehicle);
+  }
+
+  /// Pushes a locally created vehicle to the backend and swaps in the server
+  /// version (real UUID) so maintenance/fuel/diagnostics calls work.
+  Future<void> _syncVehicle(Vehicle vehicle) async {
+    final saved = await _repo.createVehicle(vehicle);
+    if (saved.id == vehicle.id) return;
+    final i = _vehicles.indexWhere((v) => v.id == vehicle.id);
+    if (i < 0) return;
+    _vehicles[i] = saved;
+    notifyListeners();
   }
 }

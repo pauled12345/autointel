@@ -19,6 +19,16 @@ class DataRepository {
     }
   }
 
+  /// Registers the vehicle on the backend and returns it with the server UUID.
+  /// Falls back to the local copy when the backend is unreachable.
+  Future<Vehicle> createVehicle(Vehicle vehicle) async {
+    try {
+      return await _api.createVehicle(vehicle);
+    } catch (_) {
+      return vehicle;
+    }
+  }
+
   Future<List<MaintenanceLog>> fetchMaintenance(String vehicleId) async {
     try {
       return await _api.getMaintenance(vehicleId);

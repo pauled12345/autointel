@@ -12,10 +12,9 @@ class ApiConfig {
   ///
   /// Set at build time with the `--dart-define` flag:
   ///
-  ///   flutter build apk --dart-define=API_BASE_URL=https://<service>.up.railway.app
+  ///   flutter build apk --dart-define=API_BASE_URL=https://<service>.onrender.com
   ///
-  /// When not set, falls back to the local-network address used in demos
-  /// (replace it with your Railway URL once deployed).
+  /// When not set, falls back to the local-network address used for local dev.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
     defaultValue: 'http://192.168.100.134:8000',
